@@ -10,66 +10,65 @@
     <title>Inventory Management</title>
   </head>
   <body>
-    <body>
-      <h1 class="container text-center mt-4">Inventory</h1>
+    <h1 class="container text-center mt-4">Inventory</h1>
 
-      <form id="form" class="container mt-4">
-        <div class="mb-3">
-          <label for="item" class="form-label">Name</label>
-          <input id="item" placeholder="Name" class="form-control" required />
-        </div>
+    <form id="form" class="container mt-4">
+      <div class="mb-3">
+        <label for="item" class="form-label">Name</label>
+        <input id="item" placeholder="Name" class="form-control" required />
+      </div>
 
-        <div class="mb-3">
-          <label for="price" class="form-label">Price</label>
-          <input
-            id="price"
-            type="number"
-            placeholder="Price"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="mb-3">
-          <label for="quantity" class="form-label">Quantity</label>
-          <input
-            id="quantity"
-            type="number"
-            placeholder="Qty"
-            class="form-control"
-            required
-          />
-        </div>
+      <div class="mb-3">
+        <label for="price" class="form-label">Price</label>
+        <input
+          id="price"
+          type="number"
+          placeholder="Price"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <input
+          id="quantity"
+          type="number"
+          placeholder="Qty"
+          class="form-control"
+          required
+        />
+      </div>
 
-        <div class="mt-2 d-flex justify-content-center gap-2">
-          <button class="btn btn-primary w-50">Submit</button>
-          <button class="btn btn-secondary w-50">Reset</button>
-        </div>
-      </form>
+      <div class="mt-2 d-flex justify-content-center gap-2">
+        <button class="btn btn-primary w-50">Submit</button>
+        <button class="btn btn-secondary w-50">Reset</button>
+      </div>
+    </form>
 
-      <table class="table container mt-4">
-        <tr>
-          <th>Item</th>
-          <th>Price</th>
-          <th>Qty</th>
-          <th>Action</th>
-        </tr>
-        <tbody id="body"></tbody>
-      </table>
+    <table class="table container mt-4">
+      <tr>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Action</th>
+      </tr>
+      <tbody id="body"></tbody>
+    </table>
 
-      <script>
-        const form = document.querySelector("form");
-        let editRow = null;
+    <script>
+      const form = document.querySelector("form");
+      let editRow = null;
 
-        form.onsubmit = function (e) {
-          e.preventDefault();
+      form.onsubmit = function (e) {
+        e.preventDefault();
 
-          if (editRow) {
-            editRow.cells[0].innerHTML = item.value;
-            editRow.cells[1].innerHTML = price.value;
-            editRow.cells[2].innerHTML = quantity.value;
-            editRow = null;
-          } else {
-            body.innerHTML += `
+        if (editRow) {
+          editRow.cells[0].innerHTML = item.value;
+          editRow.cells[1].innerHTML = price.value;
+          editRow.cells[2].innerHTML = quantity.value;
+          editRow = null;
+        } else {
+          body.innerHTML += `
               <tr>
                 <td>${item.value}</td>
                 <td>${price.value}</td>
@@ -80,22 +79,21 @@
                 </td>
               </tr>
             `;
-          }
-
-          form.reset();
-        };
-
-        function del(btn) {
-          btn.parentElement.parentElement.remove();
         }
 
-        function edit(btn) {
-          editRow = btn.parentElement.parentElement;
-          item.value = editRow.cells[0].innerHTML;
-          price.value = editRow.cells[1].innerHTML;
-          quantity.value = editRow.cells[2].innerHTML;
-        }
-      </script>
-    </body>
+        form.reset();
+      };
+
+      function del(btn) {
+        btn.parentElement.parentElement.remove();
+      }
+
+      function edit(btn) {
+        editRow = btn.parentElement.parentElement;
+        item.value = editRow.cells[0].innerHTML;
+        price.value = editRow.cells[1].innerHTML;
+        quantity.value = editRow.cells[2].innerHTML;
+      }
+    </script>
   </body>
 </html>
