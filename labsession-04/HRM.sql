@@ -185,6 +185,7 @@ AND p.deptno = (
 GROUP BY e.ssn
 HAVING COUNT(p.pno) > 2;
 
+
 -- Query 3
 -- List all the ongoing projects controlled by all the departments.
 SELECT (SELECT dname FROM department WHERE deptno = p.deptno) AS dept_name,
@@ -201,8 +202,7 @@ WHERE p.end_date >= CURDATE();
 -- Query 4
 -- Give the details of the supervisor who is supervising more than 3
 -- employees who have completed at least one project.
-SELECT *
-FROM employee s
+SELECT * FROM employee s
 WHERE s.ssn IN (
     SELECT e.super_ssn
     FROM employee e
@@ -217,7 +217,7 @@ WHERE s.ssn IN (
             WHERE end_date < CURDATE()
         )
     ) >= 1
-    GROUP BY e.super_ssn
+    GROUP BY e.super_ssn -- OR GROUP BY 1
     HAVING COUNT(e.ssn) > 3
 );
 
@@ -248,9 +248,9 @@ WHERE d.essn IN (
     ) >= 1000000
 );
 
-SELECT dependent_name
-FROM dependent
-WHERE essn IN (
+SELECT d.dependent_name
+FROM dependent d
+WHERE d.essn IN (
     SELECT w.essn
     FROM works_on w
     JOIN project p ON w.pno = p.pno
