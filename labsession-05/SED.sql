@@ -81,7 +81,6 @@ CREATE TABLE installs (
         REFERENCES users (building_no)
 );
 
-
 INSERT INTO distributor VALUES
 ('TIN001', 'SolarOne', 'Chennai', '9000011111'),
 ('TIN002', 'GreenVolt', 'Bangalore', '9000022222'),
@@ -122,7 +121,7 @@ INSERT INTO installs VALUES
 
 -- Query 1
 -- List the distributor with most installsations in domestic places
-SELECT distributor_name
+SELECT tin, distributor_name
 FROM Distributor
 WHERE tin IN (
     SELECT tin
@@ -137,21 +136,32 @@ WHERE tin IN (
     )
 );
 
-SELECT d.distributor_name
-FROM Distributor d
-JOIN (
-    SELECT tin, COUNT(*) AS cnt
-    FROM installs
-    WHERE area_type = 'Domestic'
-    GROUP BY tin
-) t ON d.tin = t.tin
-WHERE t.cnt >= ALL (
+SELECT d.tin, d.distributor_name, COUNT(*) AS domestic_installations
+FROM distributor d 
+JOIN installs i ON i.tin = d.tin
+WHERE i.area_type = 'Domestic'
+GROUP BY d.tin, d.distributor_name
+HAVING COUNT(*) >= ALL (
     SELECT COUNT(*)
     FROM installs
     WHERE area_type = 'Domestic'
     GROUP BY tin
 );
 
+SELECT d.tin, d.distributor_name, COUNT(*) AS domestic_installations
+FROM distributor d 
+JOIN installs i ON i.tin = d.tin
+WHERE i.area_type = 'Domestic'
+GROUP BY d.tin, d.distributor_name
+HAVING COUNT(*) = (
+    SELECT MAX(cnt)
+    FROM (
+        SELECT COUNT(*) AS cnt
+        FROM installs
+        WHERE area_type = 'Domestic'
+        GROUP BY tin
+    ) AS subquery
+);
 
 -- Query 2
 -- List the place name with highest capacity panel installsed
@@ -194,7 +204,7 @@ JOIN solarpanel s ON i.pv_module_no = s.pv_module_no
 WHERE s.pv_type = 'Monocrystalline';
 
 -- Query 4
--- For the specific area display the total installsation charges for both type of PV modules
+-- For the specific area display the total installation charges for both type of PV modules
 SELECT
     (SELECT address FROM users WHERE building_no = i.building_no) AS address,
     (SELECT pv_type FROM solarpanel WHERE pv_module_no = i.pv_module_no) AS pv_type,
@@ -202,11 +212,12 @@ SELECT
 FROM installs i
 GROUP BY i.building_no, i.pv_module_no;
 
-SELECT u.address, s.pv_type, SUM(i.installation_charge) AS total_installation_charge
-FROM installs i
-JOIN users u ON i.building_no = u.building_no
+SELECT u.address, SUM(i.installation_charge) AS total_installation_charge
+FROM users u
+JOIN installs i ON i.building_no = u.building_no
 JOIN solarpanel s ON i.pv_module_no = s.pv_module_no
-GROUP BY u.address, s.pv_type;
+GROUP BY 1, 2;
+
 
 -- Query 5
 -- List the details of distributors and panel that is the oldest installsation
@@ -223,8 +234,8 @@ SELECT * FROM solarpanel WHERE pv_module_no IN (
 );
 
 SELECT d.*, s.*
-FROM installs i
-JOIN distributor d ON i.tin = d.tin
+FROM distributor d
+JOIN installs i ON i.tin = d.tin
 JOIN solarpanel s ON i.pv_module_no = s.pv_module_no
 WHERE i.installsdate = (
     SELECT MIN(installsdate) FROM installs
@@ -243,7 +254,7 @@ SELECT s.pv_type, AVG(s.price) AS avg_sales
 FROM installs i
 JOIN solarpanel s ON i.pv_module_no = s.pv_module_no
 WHERE i.area_type = 'Commercial'
-GROUP BY s.pv_type;
+GROUP BY 1;
 
 SELECT s.pv_type, AVG(s.price) AS avg_sales
 FROM solarpanel s
