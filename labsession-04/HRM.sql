@@ -185,7 +185,6 @@ AND p.deptno = (
 GROUP BY e.ssn
 HAVING COUNT(p.pno) > 2;
 
-
 -- Query 3
 -- List all the ongoing projects controlled by all the departments.
 SELECT (SELECT dname FROM department WHERE deptno = p.deptno) AS dept_name,
@@ -248,16 +247,18 @@ WHERE d.essn IN (
     ) >= 1000000
 );
 
-SELECT d.dependent_name
-FROM dependent d
-WHERE d.essn IN (
-    SELECT w.essn
-    FROM works_on w
-    JOIN project p ON w.pno = p.pno
-    WHERE p.end_date < CURDATE()
-    GROUP BY w.essn
-    HAVING SUM(p.budget) >= 1000000
-);
+SELECT 
+    e.ssn,
+    e.fname,
+    d.dependent_name,
+    SUM(p.budget) AS total_project_budget
+FROM employee e
+JOIN works_on w ON e.ssn = w.essn
+JOIN project p ON w.pno = p.pno
+JOIN dependent d ON e.ssn = d.essn
+WHERE p.end_date < CURDATE()
+GROUP BY e.ssn, e.fname, d.dependent_name
+HAVING SUM(p.budget) >= 1000000;
 
 -- Query 6
 -- List the department and employee details whose project is in more than one city.
@@ -272,9 +273,14 @@ WHERE e.deptno IN (
     HAVING COUNT(DISTINCT plocation) > 1
 );
 
-SELECT dep.dname AS dept_name, e.*
+SELECT 
+    e.ssn,
+    e.deptno,
+    p.pno,
+    p.plocation AS city
 FROM employee e
-JOIN department dep ON e.deptno = dep.deptno
+JOIN works_on w ON e.ssn = w.essn
+JOIN project p ON w.pno = p.pno
 WHERE e.deptno IN (
     SELECT deptno
     FROM project
